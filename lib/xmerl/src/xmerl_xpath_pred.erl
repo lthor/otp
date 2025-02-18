@@ -787,7 +787,7 @@ normalize([], _S, Acc) ->
 scan_number([H|T]) when ?whitespace(H) ->
     scan_number(T);
 scan_number("-" ++ T) ->
-    case catch xmerl_xpath_scan:scan_number(T) of
+    try xmerl_xpath_scan:scan_number(T) of
 	{{number, N}, Tail} ->
 	    case is_all_white(Tail) of
 		true ->
@@ -797,9 +797,12 @@ scan_number("-" ++ T) ->
 	    end;
 	_Other ->
 	    'NaN'
+    catch
+        _:_ ->
+            'NaN'
     end;
 scan_number(T) ->
-    case catch xmerl_xpath_scan:scan_number(T) of
+    try xmerl_xpath_scan:scan_number(T) of
 	{{number, N}, Tail} ->
 	    case is_all_white(Tail) of
 		true ->
@@ -809,6 +812,9 @@ scan_number(T) ->
 	    end;
 	_Other ->
 	    'NaN'
+    catch
+        _:_ ->
+            'NaN'        
     end.
 
 is_all_white([H|T]) when ?whitespace(H) ->
